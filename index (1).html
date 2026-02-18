@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>流動食きろく</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F5F0EB;
+  --card: #FFFFFF;
+  --pri: #5B8A72;
+  --pri-d: #3D6B54;
+  --pri-l: #E8F0EC;
+  --morning: #E8A838;
+  --morning-l: #FDF3E0;
+  --noon: #4A90D9;
+  --noon-l: #E3EDF8;
+  --evening: #7B6BA0;
+  --evening-l: #EDEDF5;
+  --green: #4CAF7A;
+  --yellow: #E8A838;
+  --orange: #E07844;
+  --red: #D4524D;
+  --txt: #3A3A3A;
+  --txt-l: #8A8A8A;
+  --bdr: #E8E4DD;
+  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: 'M PLUS Rounded 1c', sans-serif;
+  background: var(--bg);
+  color: var(--txt);
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding-bottom: 100px;
+}
+
+/* ===== HEADER ===== */
+.header {
+  background: linear-gradient(135deg, var(--pri), var(--pri-d));
+  color: #fff;
+  padding: 20px 20px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 4px 20px rgba(59,107,84,.3);
+}
+.header-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 480px;
+  margin: 0 auto;
+}
+.header h1 { font-size: 20px; font-weight: 800; letter-spacing: 1px; }
+.header-sub { font-size: 12px; opacity: 0.8; margin-top: 2px; }
+.sync-badge {
+  font-size: 10px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.2);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+}
+.sync-badge.ok { background: rgba(255,255,255,0.25); }
+.sync-badge.err { background: rgba(212,82,77,0.4); }
+
+.add-btn {
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-radius: 14px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.add-btn:active { transform: scale(0.95); background: rgba(255,255,255,0.3); }
+
+.back-btn {
+  background: transparent;
+  color: rgba(255,255,255,0.8);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 14px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* ===== MAIN ===== */
+.main {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+/* ===== FORM ===== */
+.form-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 8px 0 20px;
+  color: var(--pri-d);
+}
+.label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--txt-l);
+  margin: 20px 0 8px;
+}
+.label:first-of-type { margin-top: 0; }
+
+.date-input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 2px solid var(--bdr);
+  background: var(--card);
+  color: var(--txt);
+  font-size: 16px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.date-input:focus { border-color: var(--pri); }
+
+/* Meal buttons */
+.meal-row { display: flex; gap: 10px; }
+.meal-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 8px;
+  border-radius: 16px;
+  border: 2px solid var(--bdr);
+  background: var(--card);
+  color: var(--txt-l);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.meal-btn .icon { font-size: 28px; }
+.meal-btn .text { font-weight: 600; font-size: 15px; }
+.meal-btn.active-morning { background: var(--morning-l); border-color: var(--morning); color: var(--morning); transform: scale(1.03); box-shadow: 0 4px 16px rgba(232,168,56,0.25); }
+.meal-btn.active-noon { background: var(--noon-l); border-color: var(--noon); color: var(--noon); transform: scale(1.03); box-shadow: 0 4px 16px rgba(74,144,217,0.25); }
+.meal-btn.active-evening { background: var(--evening-l); border-color: var(--evening); color: var(--evening); transform: scale(1.03); box-shadow: 0 4px 16px rgba(123,107,160,0.25); }
+
+.error-msg { color: var(--red); font-size: 13px; margin: 4px 0 0 4px; }
+
+/* Percent */
+.percent-card {
+  background: var(--card);
+  border-radius: 18px;
+  padding: 24px 20px;
+  border: 2px solid var(--bdr);
+  text-align: center;
+}
+.percent-display { margin-bottom: 16px; }
+.percent-num {
+  font-size: 52px;
+  font-weight: 800;
+  transition: color 0.3s;
+  line-height: 1;
+}
+.percent-sign { font-size: 24px; font-weight: 600; color: var(--txt-l); margin-left: 2px; }
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 10px;
+  border-radius: 5px;
+  outline: none;
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--pri);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  cursor: pointer;
+}
+
+.range-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--txt-l);
+  margin-top: 6px;
+}
+.quick-btns {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.quick-btn {
+  padding: 7px 16px;
+  border-radius: 20px;
+  border: 2px solid var(--bdr);
+  background: var(--card);
+  color: var(--txt-l);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.quick-btn.active {
+  color: #fff;
+  border-color: transparent;
+}
+
+/* Memo */
+.memo-input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 2px solid var(--bdr);
+  background: var(--card);
+  color: var(--txt);
+  font-size: 15px;
+  font-family: inherit;
+  outline: none;
+  resize: vertical;
+  min-height: 60px;
+  transition: border-color 0.2s;
+}
+.memo-input:focus { border-color: var(--pri); }
+
+/* Image upload */
+.image-upload {
+  border-radius: 16px;
+  border: 2px dashed var(--bdr);
+  background: var(--card);
+  padding: 4px;
+  cursor: pointer;
+  overflow: hidden;
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s;
+}
+.image-upload:active { border-color: var(--pri); }
+.upload-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px;
+  color: var(--txt-l);
+}
+.upload-placeholder .icon { font-size: 36px; margin-bottom: 6px; }
+.upload-placeholder .text { font-size: 14px; }
+.preview-wrap { position: relative; width: 100%; }
+.preview-img {
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 12px;
+  display: block;
+}
+.remove-img {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Save button */
+.save-btn {
+  width: 100%;
+  margin-top: 28px;
+  padding: 16px;
+  border-radius: 16px;
+  border: none;
+  background: linear-gradient(135deg, var(--pri), var(--pri-d));
+  color: #fff;
+  font-size: 17px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(59,107,84,0.3);
+  letter-spacing: 1px;
+  transition: all 0.2s;
+}
+.save-btn:disabled { opacity: 0.5; }
+.save-btn:active:not(:disabled) { transform: scale(0.98); }
+
+/* ===== LIST VIEW ===== */
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+}
+.empty-state .icon { font-size: 56px; }
+.empty-state .text { color: var(--txt-l); margin-top: 12px; font-size: 16px; }
+.empty-state .sub { color: var(--txt-l); font-size: 14px; opacity: 0.7; margin-top: 4px; }
+
+.date-group { margin-bottom: 24px; }
+.date-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding-left: 4px;
+}
+.date-label { font-size: 16px; font-weight: 700; color: var(--pri-d); }
+.today-badge {
+  background: var(--pri);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 10px;
+}
+
+/* Record card */
+.record-card {
+  background: var(--card);
+  border-radius: 16px;
+  border: 1px solid var(--bdr);
+  padding: 16px;
+  margin-bottom: 10px;
+  box-shadow: var(--shadow);
+  animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.meal-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.meal-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.meal-dot.morning { background: var(--morning); }
+.meal-dot.noon { background: var(--noon); }
+.meal-dot.evening { background: var(--evening); }
+.meal-icon { font-size: 18px; }
+.meal-name { font-weight: 600; }
+
+.card-actions { display: flex; gap: 4px; }
+.icon-btn {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 8px;
+  opacity: 0.6;
+}
+.icon-btn:active { opacity: 1; background: var(--pri-l); }
+
+.card-img {
+  width: 100%;
+  max-height: 160px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+.card-memo {
+  font-size: 13px;
+  color: var(--txt-l);
+  margin-bottom: 10px;
+  padding: 8px 12px;
+  background: #F8F6F3;
+  border-radius: 10px;
+  line-height: 1.5;
+}
+
+.percent-bar-wrap { margin-top: 4px; }
+.percent-bar-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6px;
+}
+.percent-bar-label .lbl { color: var(--txt-l); font-size: 13px; }
+.percent-bar-label .val { font-weight: 700; font-size: 22px; }
+.bar-track {
+  height: 10px;
+  border-radius: 5px;
+  background: #EDEAE6;
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.5s ease;
+}
+
+/* Loading */
+.loading-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--bdr);
+  border-top-color: var(--pri);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { color: var(--txt-l); margin-top: 12px; }
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--pri-d);
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 200;
+  opacity: 0;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  white-space: nowrap;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.error { background: var(--red); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-inner">
+    <div>
+      <h1 id="headerTitle">🍽️ 流動食きろく</h1>
+      <div class="header-sub">毎日の食事を記録しよう</div>
+      <div id="syncBadge" class="sync-badge">⏳ 接続中...</div>
+    </div>
+    <button id="headerBtn" class="add-btn" onclick="showAddView()">＋ 記録する</button>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main" id="mainContent">
+  <div class="loading-wrap">
+    <div class="spinner"></div>
+    <div class="loading-text">読み込み中...</div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="toast"></div>
+
+<!-- FILE INPUT (hidden) -->
+<input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleImageUpload(event)">
+
+<script>
+// ===== SUPABASE CONFIG =====
+const SUPABASE_URL = 'https://xytmyjpyrovgxeanuyut.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh5dG15anB5cm92Z3hlYW51eXV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyODMwNjEsImV4cCI6MjA4Njg1OTA2MX0.Cr2ieaDkhEUKOFvZHZmaB8onsVyM4WiFJwZTlkS7U_A';
+
+const headers = {
+  'apikey': SUPABASE_KEY,
+  'Authorization': `Bearer ${SUPABASE_KEY}`,
+  'Content-Type': 'application/json',
+  'Prefer': 'return=representation'
+};
+
+// ===== STATE =====
+let records = [];
+let currentView = 'list';
+let editId = null;
+let imageData = null;
+
+// ===== SUPABASE API =====
+async function fetchRecords() {
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/liquid_food_records?order=date.desc,created_at.desc`,
+      { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+    );
+    if (!res.ok) throw new Error('Fetch failed');
+    records = await res.json();
+    setSyncStatus('ok');
+    return records;
+  } catch (e) {
+    console.error('Fetch error:', e);
+    setSyncStatus('err');
+    return [];
+  }
+}
+
+async function upsertRecord(record) {
+  try {
+    // Check if exists
+    const check = await fetch(
+      `${SUPABASE_URL}/rest/v1/liquid_food_records?id=eq.${record.id}`,
+      { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+    );
+    const existing = await check.json();
+
+    let res;
+    if (existing.length > 0) {
+      // UPDATE
+      res = await fetch(
+        `${SUPABASE_URL}/rest/v1/liquid_food_records?id=eq.${record.id}`,
+        { method: 'PATCH', headers, body: JSON.stringify({ ...record, updated_at: new Date().toISOString() }) }
+      );
+    } else {
+      // INSERT
+      res = await fetch(
+        `${SUPABASE_URL}/rest/v1/liquid_food_records`,
+        { method: 'POST', headers, body: JSON.stringify(record) }
+      );
+    }
+    if (!res.ok) throw new Error('Save failed');
+    setSyncStatus('ok');
+    return true;
+  } catch (e) {
+    console.error('Save error:', e);
+    setSyncStatus('err');
+    showToast('保存に失敗しました', true);
+    return false;
+  }
+}
+
+async function deleteRecord(id) {
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/liquid_food_records?id=eq.${id}`,
+      { method: 'DELETE', headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+    );
+    if (!res.ok) throw new Error('Delete failed');
+    setSyncStatus('ok');
+    return true;
+  } catch (e) {
+    console.error('Delete error:', e);
+    setSyncStatus('err');
+    showToast('削除に失敗しました', true);
+    return false;
+  }
+}
+
+// ===== HELPERS =====
+function todayStr() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+}
+
+function formatDate(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  const weekdays = ['日','月','火','水','木','金','土'];
+  return `${d.getMonth()+1}/${d.getDate()}（${weekdays[d.getDay()]}）`;
+}
+
+const MEALS = {
+  morning: { label: '朝', icon: '🌅', color: 'var(--morning)', colorName: 'morning' },
+  noon:    { label: '昼', icon: '☀️', color: 'var(--noon)', colorName: 'noon' },
+  evening: { label: '晩', icon: '🌙', color: 'var(--evening)', colorName: 'evening' }
+};
+
+function getPercentColor(p) {
+  if (p >= 80) return 'var(--green)';
+  if (p >= 50) return 'var(--yellow)';
+  if (p >= 30) return 'var(--orange)';
+  return 'var(--red)';
+}
+
+function setSyncStatus(status) {
+  const badge = document.getElementById('syncBadge');
+  if (status === 'ok') {
+    badge.className = 'sync-badge ok';
+    badge.textContent = '☁️ 同期済み';
+  } else {
+    badge.className = 'sync-badge err';
+    badge.textContent = '⚠️ 接続エラー';
+  }
+}
+
+function showToast(msg, isError = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (isError ? ' error' : '') + ' show';
+  setTimeout(() => { t.className = 'toast'; }, 2500);
+}
+
+// ===== IMAGE HANDLING =====
+function compressImage(file, maxW = 800, quality = 0.7) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let w = img.width, h = img.height;
+        if (w > maxW) { h = (maxW / w) * h; w = maxW; }
+        canvas.width = w;
+        canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function handleImageUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  compressImage(file).then(data => {
+    imageData = data;
+    renderForm();
+  });
+}
+
+// ===== VIEWS =====
+function showAddView(record = null) {
+  currentView = 'add';
+  editId = record ? record.id : null;
+  imageData = record ? record.image : null;
+
+  const btn = document.getElementById('headerBtn');
+  btn.textContent = '← 戻る';
+  btn.className = 'back-btn';
+  btn.onclick = showListView;
+
+  renderForm(record);
+}
+
+async function showListView() {
+  currentView = 'list';
+  editId = null;
+  imageData = null;
+
+  const btn = document.getElementById('headerBtn');
+  btn.textContent = '＋ 記録する';
+  btn.className = 'add-btn';
+  btn.onclick = () => showAddView();
+
+  await fetchRecords();
+  renderList();
+}
+
+// ===== FORM STATE =====
+let formState = {};
+
+function initFormState(record) {
+  formState = {
+    date: record ? record.date : todayStr(),
+    meal: record ? record.meal : '',
+    percent: record ? record.percent : 50,
+    memo: record ? (record.memo || '') : ''
+  };
+}
+
+// ===== RENDER FORM =====
+function renderForm(record) {
+  if (!formState.date && !record) initFormState(null);
+  if (record && !formState._initialized) {
+    initFormState(record);
+    formState._initialized = true;
+  }
+  if (!record && !formState._initialized) {
+    initFormState(null);
+    formState._initialized = true;
+  }
+
+  const main = document.getElementById('mainContent');
+  const pc = getPercentColor(formState.percent);
+
+  main.innerHTML = `
+    <div class="form-title">${editId ? '✏️ 記録を編集' : '📝 新しい記録'}</div>
+
+    <div class="label">📅 日付</div>
+    <input type="date" class="date-input" value="${formState.date}" onchange="formState.date=this.value">
+
+    <div class="label">🕐 食事タイミング</div>
+    <div class="meal-row">
+      ${Object.entries(MEALS).map(([key, m]) => `
+        <button class="meal-btn ${formState.meal === key ? 'active-' + key : ''}" onclick="formState.meal='${key}'; renderForm()">
+          <span class="icon">${m.icon}</span>
+          <span class="text">${m.label}</span>
+        </button>
+      `).join('')}
+    </div>
+    ${!formState.meal ? '<div class="error-msg">※ 選択してください</div>' : ''}
+
+    <div class="label">📊 食べた量</div>
+    <div class="percent-card">
+      <div class="percent-display">
+        <span class="percent-num" style="color:${pc}">${formState.percent}</span>
+        <span class="percent-sign">%</span>
+      </div>
+      <input type="range" min="0" max="100" step="5" value="${formState.percent}"
+        style="background:linear-gradient(to right, ${pc} ${formState.percent}%, #EDEAE6 ${formState.percent}%)"
+        oninput="formState.percent=Number(this.value); renderForm()">
+      <div class="range-labels"><span>0%</span><span>50%</span><span>100%</span></div>
+      <div class="quick-btns">
+        ${[0,25,50,75,100].map(v => `
+          <button class="quick-btn ${formState.percent === v ? 'active' : ''}"
+            style="${formState.percent === v ? 'background:'+getPercentColor(v)+';color:#fff;border-color:'+getPercentColor(v) : ''}"
+            onclick="formState.percent=${v}; renderForm()">${v}%</button>
+        `).join('')}
+      </div>
+    </div>
+
+    <div class="label">📝 メモ（任意）</div>
+    <textarea class="memo-input" placeholder="味の感想、体調など…" oninput="formState.memo=this.value">${formState.memo}</textarea>
+
+    <div class="label">📷 写真（任意）</div>
+    <div class="image-upload" onclick="document.getElementById('fileInput').click()">
+      ${imageData ? `
+        <div class="preview-wrap">
+          <img src="${imageData}" class="preview-img">
+          <button class="remove-img" onclick="event.stopPropagation(); imageData=null; document.getElementById('fileInput').value=''; renderForm()">✕</button>
+        </div>
+      ` : `
+        <div class="upload-placeholder">
+          <span class="icon">📸</span>
+          <span class="text">タップして写真を選択</span>
+        </div>
+      `}
+    </div>
+
+    <button class="save-btn" ${!formState.meal ? 'disabled' : ''} onclick="handleSave()">
+      ${editId ? '更新する' : '記録を保存'}
+    </button>
+  `;
+}
+
+// ===== SAVE =====
+async function handleSave() {
+  if (!formState.meal) return;
+
+  const saveBtn = document.querySelector('.save-btn');
+  saveBtn.disabled = true;
+  saveBtn.textContent = '保存中...';
+
+  const record = {
+    id: editId || Date.now().toString(),
+    date: formState.date,
+    meal: formState.meal,
+    percent: formState.percent,
+    memo: formState.memo || null,
+    image: imageData || null,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  };
+
+  const ok = await upsertRecord(record);
+  if (ok) {
+    showToast(editId ? '✅ 更新しました' : '✅ 保存しました');
+    formState._initialized = false;
+    await showListView();
+  } else {
+    saveBtn.disabled = false;
+    saveBtn.textContent = editId ? '更新する' : '記録を保存';
+  }
+}
+
+// ===== RENDER LIST =====
+function renderList() {
+  const main = document.getElementById('mainContent');
+
+  if (records.length === 0) {
+    main.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">📝</div>
+        <div class="text">まだ記録がありません</div>
+        <div class="sub">「＋ 記録する」ボタンから始めましょう</div>
+      </div>
+    `;
+    return;
+  }
+
+  // Group by date
+  const grouped = {};
+  // Sort records: date desc, meal order
+  const mealOrder = { morning: 0, noon: 1, evening: 2 };
+  const sorted = [...records].sort((a, b) => {
+    if (a.date !== b.date) return b.date.localeCompare(a.date);
+    return mealOrder[a.meal] - mealOrder[b.meal];
+  });
+
+  sorted.forEach(r => {
+    if (!grouped[r.date]) grouped[r.date] = [];
+    grouped[r.date].push(r);
+  });
+
+  const dates = Object.keys(grouped).sort((a, b) => b.localeCompare(a));
+  const today = todayStr();
+
+  main.innerHTML = dates.map(dateKey => `
+    <div class="date-group">
+      <div class="date-header">
+        <span class="date-label">${formatDate(dateKey)}</span>
+        ${dateKey === today ? '<span class="today-badge">今日</span>' : ''}
+      </div>
+      ${grouped[dateKey].map(r => {
+        const m = MEALS[r.meal] || { label: r.meal, icon: '🍽️', colorName: 'morning' };
+        const pc = getPercentColor(r.percent);
+        return `
+          <div class="record-card">
+            <div class="card-top">
+              <div class="meal-badge">
+                <span class="meal-dot ${m.colorName}"></span>
+                <span class="meal-icon">${m.icon}</span>
+                <span class="meal-name">${m.label}</span>
+              </div>
+              <div class="card-actions">
+                <button class="icon-btn" onclick="startEdit('${r.id}')">✏️</button>
+                <button class="icon-btn" onclick="confirmDelete('${r.id}')">🗑️</button>
+              </div>
+            </div>
+            ${r.image ? `<img src="${r.image}" class="card-img">` : ''}
+            ${r.memo ? `<div class="card-memo">💬 ${escapeHtml(r.memo)}</div>` : ''}
+            <div class="percent-bar-wrap">
+              <div class="percent-bar-label">
+                <span class="lbl">摂取量</span>
+                <span class="val" style="color:${pc}">${r.percent}%</span>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill" style="width:${r.percent}%; background:linear-gradient(90deg, ${pc}88, ${pc})"></div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `).join('');
+}
+
+function escapeHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function startEdit(id) {
+  const record = records.find(r => r.id === id);
+  if (!record) return;
+  formState._initialized = false;
+  showAddView(record);
+}
+
+async function confirmDelete(id) {
+  if (!confirm('この記録を削除しますか？')) return;
+  const ok = await deleteRecord(id);
+  if (ok) {
+    showToast('🗑️ 削除しました');
+    await fetchRecords();
+    renderList();
+  }
+}
+
+// ===== INIT =====
+async function init() {
+  await fetchRecords();
+  renderList();
+}
+
+init();
+</script>
+</body>
+</html>
